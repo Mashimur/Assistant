@@ -19,10 +19,19 @@ class Record:
             self.phone_numbers.append(phone)
 
     def add_phone_number(self, phone):
-        self.phone.append(phone)
+        phone = Phone(phone)
+        if phone:
+            lst = [phone.value for phone in self.phone_numbers]
+            if phone.value not in lst:
+                self.phone_numbers.append(phone)
 
-    def change_phone_number(self, phone):
-        self.phone_numbers = phone
+    def change_phone_number(self, old_phone_number, new_phone_number):
+        old_phone = Phone(old_phone_number)
+        new_phone = Phone(new_phone_number)
+        for phone in self.phone_numbers:
+            if phone.value == old_phone.value:
+                self.phone_numbers.remove(phone)
+                self.phone_numbers.append(new_phone)
 
     def remove_phone_number(self):
         self.phone_numbers = []
@@ -45,16 +54,8 @@ class AddressBook(UserDict):
 
 if __name__ == '__main__':
     # Перевірка
-    name = Name('Bill')
-    phone = Phone('1234567890')
-    rec = Record(name, phone)
-    ab = AddressBook()
-    ab.add_record(rec)
-
-    assert isinstance(ab['Bill'], Record)
-    assert isinstance(ab['Bill'].name, Name)
-    assert isinstance(ab['Bill'].phone_numbers, list)
-    assert isinstance(ab['Bill'].phone_numbers[0], Phone)
-    assert ab['Bill'].phone_numbers[0].value == '1234567890'
-
-    print('All Ok)')
+    rec = Record(Name('Bill'), Phone('123456'))
+    rec.add_phone_number(Phone('098765'))
+    print(len(rec.phone_numbers) == 2)  # True
+    rec.change_phone_number(Phone('123456'), Phone('667890'))
+    print(rec.phone_numbers)
