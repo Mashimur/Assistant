@@ -19,15 +19,12 @@ class Record:
             self.phone_numbers.append(phone)
 
     def add_phone_number(self, phone):
-        phone = Phone(phone)
         if phone:
             lst = [phone.value for phone in self.phone_numbers]
             if phone.value not in lst:
                 self.phone_numbers.append(phone)
 
-    def change_phone_number(self, old_phone_number, new_phone_number):
-        old_phone = Phone(old_phone_number)
-        new_phone = Phone(new_phone_number)
+    def change_phone_number(self, old_phone, new_phone):
         for phone in self.phone_numbers:
             if phone.value == old_phone.value:
                 self.phone_numbers.remove(phone)
