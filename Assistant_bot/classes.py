@@ -6,7 +6,8 @@ class Field:
         self.value = value
 
 class Phone(Field):
-    pass
+    def __eq__(self, __o: object) -> bool:
+        return self.value == __o.value
 
 class Name(Field):
     pass
@@ -18,11 +19,11 @@ class Record:
         if isinstance(phone, Phone):
             self.phone_numbers.append(phone)
 
-    def add_phone_number(self, phone):
-        if phone:
-            lst = [phone.value for phone in self.phone_numbers]
-            if phone.value not in lst:
-                self.phone_numbers.append(phone)
+    def add_phone_number(self, phone:Phone) -> bool:
+        if phone not in self.phone_numbers:
+            self.phone_numbers.append(phone)
+            return True
+        return False
 
     def change_phone_number(self, old_phone, new_phone):
         for phone in self.phone_numbers:
