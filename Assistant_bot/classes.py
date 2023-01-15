@@ -36,7 +36,7 @@ class Phone(Field):
             new_phone = "".join(new_phone)
             if len(new_phone) == 12:
                 return f"+{new_phone}"
-            elif not phone.startswith("+38"):
+            elif len(new_phone) == 10:
                 return f"+38{new_phone}"
             else:
                 print("Phone number was entered incorrectly! Please check phone`s number length")
@@ -165,3 +165,4 @@ if __name__ == '__main__':
     print(test_ABook.show_records())
     test_ABook.remove_record(rec1)
     print(test_ABook.show_records())
+    rec2 = Record(Name("Bill"), Phone("12345"), Birthday(2004, 12, 7))
