@@ -165,4 +165,4 @@ if __name__ == '__main__':
     print(test_ABook.show_records())
     test_ABook.remove_record(rec1)
     print(test_ABook.show_records())
-    rec2 = Record(Name("Bill"), Phone("12345"), Birthday(2004, 12, 7))
+    p = Phone("12345")
