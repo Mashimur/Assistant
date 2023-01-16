@@ -1,6 +1,7 @@
 from collections import UserDict
 from datetime import datetime
 
+
 class Field:
     def __init__(self, value) -> None:
         self.value = value
@@ -48,33 +49,39 @@ class Phone(Field):
     def value(self, value):
         self._value = Phone.sanitize_phone_number(value)
 
+
 class Name(Field):
     def __str__(self):
         return self._value.title()
 
-class Birthday(datetime):
+
+class Birthday(Field):
     @staticmethod
-    def validate_date(year, month, day):
+    def validate_date(birthday):
         try:
-            birthday = datetime(year=year, month=month, day=day)
+            birthday = datetime.strptime(
+                birthday, "%d.%m.%Y"
+            )
         except ValueError:
             print("Birthday was entered incorrectly!")
+            return None
         else:
             return str(birthday.date())
 
-    def __init__(self, year, month, day):
-        self.__birthday = self.validate_date(year, month, day)
+    def __init__(self, value):
+        self._value = Birthday.validate_date(value)
 
     def __repr__(self):
-        return self.__birthday.strftime('%Y-%m-%d')
+        return str(self._value)
 
     @property
     def birthday(self):
-        return self.__birthday
+        return self._value
 
     @birthday.setter
-    def birthday(self, year, month, day):
-        self.__birthday = self.validate_date(year, month, day)
+    def birthday(self, value):
+        self._value = Birthday.validate_date(value)
+
 
 class Record:
     def __init__(self, name: Name, phone: Phone = None, birthday: Birthday = None):
@@ -83,6 +90,10 @@ class Record:
         self.birthday = birthday
         if isinstance(phone, Phone):
             self.phone_numbers.append(phone)
+        if isinstance(birthday, Birthday):
+            self.birthday = birthday
+        else:
+            self.birthday = None
 
     def add_phone_number(self, phone):
         if phone:
@@ -103,30 +114,30 @@ class Record:
 
     def days_to_birthday(self):
         current_date = datetime.now().date()
-        current_year = current_date.year
+        current_birth = datetime(year=int(datetime.now().year), month=int(self.birthday.value[5:7]), day=int(self.birthday.value[8:10])).date()
+        delta = current_birth - current_date
+        if int(delta.days) >= 0:
+            return f"User {self.name}'s birthday will be in {delta.days} days"
+        else:
+            next_year_birth = datetime(year=int(datetime.now().year) + 1, month=int(self.birthday.value[5:7]), day=int(self.birthday.value[8:10])).date()
+            delta = next_year_birth - current_date
+            return f"User {self.name}'s birthday will be in {delta.days} days"
 
-        if self.birthday is not None:
-            cur_year_birth = datetime(current_year, self.birthday.month, self.birthday.day).date()
-            delta = cur_year_birth - current_date
-            if delta.days >= 0:
-                return f"User {self.name}'s birthday will be in {delta.days} days"
-            else:
-                next_year_birth = datetime(current_year + 1, self.birthday.month, self.birthday.day).date()
-                delta = next_year_birth - current_date
-                return f"User {self.name}'s birthday will be in {delta.days} days"
-
-    def add_birthday(self, year, month, day):
-        self.birthday = Birthday.validate_date(year, month, day)
+    def add_birthday(self, birthday):
+        if isinstance(birthday, Birthday):
+            self.birthday = birthday
+        else:
+            self.birthday = Birthday(birthday)
 
     def show_contact(self):
         return {"name": self.name, "phone": self.phone_numbers}
 
     def get_contact(self):
-        phone_numbers = ", ".join([str(p) for p in self.phone_numbers])
+        phones = ", ".join([str(p) for p in self.phone_numbers])
         return {
             "name": str(self.name.value),
-            "phone": phone_numbers,
-            "birthday": self.birthday,
+            "phone": phones,
+            "birthday": self.birthday.value,
         }
 
 
@@ -147,13 +158,12 @@ class AddressBook(UserDict):
 
 if __name__ == '__main__':
     # Перевірка
-    rec = Record(Name("Bill"), Phone("0958481169"), Birthday(2003, 3, 15))
-    rec.add_birthday(2003, 3, 18)
+    rec = Record(Name("Bill"), Phone("0958481169"), Birthday("17.03.2003"))
     rec.add_phone_number(Phone("0505688424"))
     rec.remove_phone_number(Phone("0958481169"))
     rec.change_phone_number(Phone("0505688424"), Phone("0958001170"))
-    rec1 = Record(Name("Den"), Phone("0979001260"), Birthday(2003, 3, 15))
-    rec1.add_birthday(1996, 10, 19)
+    rec1 = Record(Name("Den"), Phone("0979001260"), Birthday("26.12.2004"))
+    rec1.add_birthday("19.10.1996")
     rec1.add_phone_number(Phone("0505008323"))
     rec1.remove_phone_number(Phone("0979001260"))
     rec1.change_phone_number(Phone("0505008323"), Phone("0636121320"))
@@ -165,4 +175,7 @@ if __name__ == '__main__':
     print(test_ABook.show_records())
     test_ABook.remove_record(rec1)
     print(test_ABook.show_records())
+    rec.add_birthday(Birthday("17.01.2002"))
+    print(rec.get_contact())
+    print(rec.days_to_birthday())
     p = Phone("12345")
